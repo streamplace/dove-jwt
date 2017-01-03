@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/streamkitchen/dove-jwt#readme",
   "dependencies": {
+    "debug": "^2.6.0",
     "jsrsasign": "^7.0.0",
     "node-forge": "^0.6.46"
   }
