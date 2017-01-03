@@ -1,0 +1,26 @@
+{
+  "name": "dove-jwt",
+  "version": "0.0.1",
+  "description": "Domain Validated JSON Web Tokens",
+  "main": "dist/dove-jwt.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/streamkitchen/dove-jwt.git"
+  },
+  "keywords": [
+    "JWT"
+  ],
+  "author": "Streamplace",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/streamkitchen/dove-jwt/issues"
+  },
+  "homepage": "https://github.com/streamkitchen/dove-jwt#readme",
+  "dependencies": {
+    "jsrsasign": "^7.0.0",
+    "node-forge": "^0.6.46"
+  }
+}
