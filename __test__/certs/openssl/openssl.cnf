@@ -2,7 +2,7 @@
 default_ca = ca_default
 
 [ ca_default ]
-dir = /certs
+dir = /certs/openssl
 certs = $dir
 new_certs_dir = $dir/ca.db.certs
 database = $dir/ca.db.index
