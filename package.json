@@ -23,5 +23,12 @@
     "debug": "^2.6.0",
     "jsrsasign": "^7.0.0",
     "node-forge": "^0.6.46"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.21.0",
+    "babel-jest": "^18.0.0",
+    "babel-preset-streamkitchen": "0.0.2",
+    "jest": "^18.1.0"
   }
 }
