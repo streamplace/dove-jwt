@@ -1,8 +1,9 @@
 
+import {splitca, pemToDerArray, derArrayToPem} from "./utils";
+
 // Why is this KJUR?
 var jsrsasign = require("jsrsasign");
 var forge = require("node-forge");
-var x509 = require("x509");
 var fs = require("fs");
 var path = require("path");
 var debug = require("debug");
@@ -12,30 +13,6 @@ const log = debug("dove-jwt");
 var ASN1HEX = jsrsasign.ASN1HEX;
 var JWS = jsrsasign.jws.JWS;
 var KEYUTIL = jsrsasign.KEYUTIL;
-
-function splitca(chain, split) {
-  split = typeof split !== 'undefined' ? split : "\n";
-
-  var ca = [];
-  if(chain.indexOf("-END CERTIFICATE-") < 0 || chain.indexOf("-BEGIN CERTIFICATE-") < 0){
-    throw Error("File does not contain 'BEGIN CERTIFICATE' or 'END CERTIFICATE'");
-  }
-  chain = chain.split(split);
-  var cert = [];
-  var _i, _len;
-  for (_i = 0, _len = chain.length; _i < _len; _i++) {
-    var line = chain[_i];
-    if (!(line.length !== 0)) {
-      continue;
-    }
-    cert.push(line);
-    if (line.match(/-END CERTIFICATE-/)) {
-      ca.push(cert.join(split));
-      cert = [];
-    }
-  }
-  return ca;
-}
 
 var caStore = forge.pki.createCaStore();
 const myCAs = fs.readFileSync("/etc/ssl/certs/ca-certificates.crt", "utf8");
@@ -53,24 +30,6 @@ splitca(myCAs).forEach(ca => {
   }
 });
 log(`${added} CAs added, ${failed} CAs failed. (This is usually because node-forge only supports RSA.)`);
-
-function pemToDerArray(pem) {
-  return splitca(pem).map((pem) => {
-    var asn1Cert = forge.pki.certificateFromPem(pem);
-    var asn1Obj = forge.pki.certificateToAsn1(asn1Cert);
-    var derKey = forge.asn1.toDer(asn1Obj).getBytes();
-    return forge.util.encode64(derKey);
-  });
-}
-
-function derArrayToPem(derArray) {
-  return derArray.map((der) => {
-    var derKey = forge.util.decode64(der);
-    var asnObj = forge.asn1.fromDer(derKey);
-    var asn1Cert = forge.pki.certificateFromAsn1(asnObj);
-    return forge.pki.certificateToPem(asn1Cert);
-  }).join("");
-};
 
 const keyPem = fs.readFileSync(path.resolve(__dirname, "key.pem"), 'utf8');
 const certPem = fs.readFileSync(path.resolve(__dirname, "cert.pem"), 'utf8');
