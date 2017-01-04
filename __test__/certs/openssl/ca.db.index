@@ -1,1 +1,2 @@
 V	21170104000000Z		01	unknown	/C=US/ST=Fake-State/L=Fake-City/O=Fake Certificate Authority Inc/OU=Department of Fakery/CN=Fake Root Certification Authority/emailAddress=fake@example.com
+V	21170104000000Z		02	unknown	/C=US/ST=Other-Fake-State/L=OtherFakeCity/O=Other Fake Root CA/OU=Department of OtherFakeness/CN=Other Fake Root CA/emailAddress=otherfake@example.com
