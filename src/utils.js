@@ -46,6 +46,8 @@ export function derArrayToPem(derArray) {
     var derKey = forge.util.decode64(der);
     var asnObj = forge.asn1.fromDer(derKey);
     var asn1Cert = forge.pki.certificateFromAsn1(asnObj);
-    return forge.pki.certificateToPem(asn1Cert);
+    // node-forge returns things with \r\n and that breaks our tests, so...
+    var pem = forge.pki.certificateToPem(asn1Cert);
+    return pem.split("\r\n").join("\n");
   }).join("");
 }

@@ -4,7 +4,7 @@
   "description": "Domain Validated JSON Web Tokens",
   "main": "dist/dove-jwt.js",
   "scripts": {
-    "test": "jest"
+    "test": "jasmine __test__/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
     "babel-core": "^6.21.0",
     "babel-jest": "^18.0.0",
     "babel-preset-streamkitchen": "0.0.2",
+    "jasmine-es6": "^0.4.0",
     "jest": "^18.1.0"
   }
 }
