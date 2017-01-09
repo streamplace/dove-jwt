@@ -4,8 +4,8 @@ import {certs, keys} from "./certs.js";
 
 describe("splitca", function(){
   it("should split PEM files", function() {
-    const cert1 = certs.Fake_Root_Certificate_Authority;
-    const cert2 = certs.Other_Fake_Root_Certificate_Authority;
+    const cert1 = certs.example_com;
+    const cert2 = certs.wrongdomain_example_pizza;
     const combined = cert1 + cert2 + cert1 + cert2 + cert1;
     const split = splitca(combined);
     // Strip the trailing newline from these
