@@ -47,14 +47,52 @@ describe("dove-jwt", function() {
 
     });
 
-    xit("should reject mismatched certs and domain parameter", function() {
-
-    });
-
-    xit("should reject mismatched certs and issuer parameter", function() {
+    xit("should fail if issuer header and cert and domain parameter don't match", function() {
 
     });
   });
 
-  describe("")
+  describe("verify", function() {
+    it("should handle basic verification", function() {
+      dove.addCertAuthority(certs.Fake_Root_Certificate_Authority);
+      const token = dove.sign({foo: "bar"}, keys.example_com, certs.example_com, {domain: "example.com"});
+      const parsed = dove.verify(token);
+      expect(parsed).toBeTruthy();
+      expect(parsed.foo).toBe("bar");
+    });
+
+    xit("should fail if algorithim isn't RS256", function() {
+
+    });
+
+    xit("should fail if the x5c header is missing", function() {
+
+    });
+
+    xit("should fail if the x5c header is malformed", function() {
+
+    });
+
+    xit("should fail if the x5c header is missing", function() {
+
+    });
+
+    xit("should fail if the issuer isn't formatted properly", function() {
+
+    });
+
+    xit("should fail if the cert doesn't match the issuer", function() {
+
+    });
+
+    xit("should fail if the cert is untrusted", function() {
+
+    });
+
+    xit("should fail if the x5c header is missing", function() {
+
+    });
+
+    // and then just a bunch of standard but important jwt ones i guess.
+  });
 });

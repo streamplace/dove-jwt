@@ -7,6 +7,12 @@ import {splitca, pemToDerArray, derArrayToPem} from "./utils";
 
 const log = debug("sk:dove-jwt");
 
+const throwCode = function(code, message) {
+  var err = new Error(message);
+  err.code = code;
+  throw err;
+};
+
 export class DoveJwt {
   /**
    * Create a new DoveJwt instance. Usually you won't need to do this -- we've already created one
@@ -103,7 +109,10 @@ export class DoveJwt {
    *                        property of the error.
    */
   verify(token) {
-
+    const {header} = jwt.decode(token, {complete: true});
+    const cert = derArrayToPem(header.x5c);
+    const payload = jwt.verify(token, cert, {algorithms: "RS256"});
+    return payload;
   }
 }
 
