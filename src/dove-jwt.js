@@ -1,8 +1,9 @@
 
-import {splitca, pemToDerArray, derArrayToPem} from "./utils";
 import forge from "node-forge";
 import debug from "debug";
 import fs from "fs";
+import jwt from "jsonwebtoken";
+import {splitca, pemToDerArray, derArrayToPem} from "./utils";
 
 const log = debug("sk:dove-jwt");
 
@@ -64,22 +65,33 @@ export class DoveJwt {
    * it's disabled by default b/c self-signed is good too.
    */
   useSystemCertAuthorities() {
-    // if your life is worse because this is is sync, just let me know and I'll change it! -Eli
-    const myCAs = fs.readFileSync("/etc/ssl/certs/ca-certificates.crt", "utf8");
+    // if your life is worse because this is is sync, let me know and I'll change it! -Eli
+    const myCAs = fs.readFileSync(DoveJwt.SYSTEM_CA_PATH, "utf8");
     return this.addCertAuthority(myCAs);
   }
 
   /**
    * Create a new dove-jwt.
-   * @param  {Object} payload   Body of the JWT you'd like to produce.
+   * @param  {Object} payload   Body of the JWT you'd like to produce. Passed directly to jsonwebtoken.
    * @param  {String} secretKey RSA secret key.
    * @param  {String} cert      RSA cert, signed by your relevant CA.
    * @param  {Object} options   Options object, passed through to [the same configuration options
    *                            of node-jsonwebtoken](https://github.com/auth0/node-jsonwebtoken#usage).
    * @return {String} The dove-jwt.
    */
-  sign(payload, secretKey, cert, options) {
-
+  sign(payload, secretKey, cert, options = {}) {
+    const {domain} = options;
+    delete options.domain;
+    if (!domain || !secretKey || !cert || !domain) {
+      throw new Error("Missing required parameters to dove.sign.");
+    }
+    options.algorithm = "RS256";
+    options.issuer = `https://${domain}/`;
+    if (!options.header) {
+      options.header = {};
+    }
+    options.header.x5c = pemToDerArray(cert);
+    return jwt.sign(payload, secretKey, options);
   }
 
   /**
@@ -94,5 +106,8 @@ export class DoveJwt {
 
   }
 }
+
+// Mostly so it can be overridden in test mocks
+DoveJwt.SYSTEM_CA_PATH = "/etc/ssl/certs/ca-certificates.crt";
 
 export default new DoveJwt();
