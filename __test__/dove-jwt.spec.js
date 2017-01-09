@@ -23,7 +23,13 @@ describe("dove-jwt", function() {
 
   beforeEach(function() {
     dove = new DoveJwt();
-  })
+  });
+
+  it("should import some system certs", function() {
+    dove.useSystemCertAuthorities();
+    const certs = dove.caStore.listAllCertificates();
+    expect(certs.length > 1).toBe(true);
+  });
 
   it("should handle basic sign and verify", function() {
 
