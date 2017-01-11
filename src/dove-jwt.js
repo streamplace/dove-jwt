@@ -7,9 +7,8 @@ import {splitca, pemToDerArray, derArrayToPem} from "./utils";
 
 const log = debug("sk:dove-jwt");
 
-const throwCode = function(code, message) {
-  var err = new Error(message);
-  err.code = code;
+const throwCode = function(code) {
+  var err = new Error(code);
   throw err;
 };
 
@@ -77,6 +76,20 @@ export class DoveJwt {
   }
 
   /**
+   * Throws a cert_untrusted error if the cert isn't trusted according to our CA store.
+   * @param  {Strong} cert PEM formatted cert
+   */
+  verifyCertTrusted(cert) {
+    try {
+      const result = forge.pki.verifyCertificateChain(this.caStore, splitca(cert).map(forge.pki.certificateFromPem));
+    }
+    catch (e) {
+      log("Error from forge.pki.verifyCertificateChain", e);
+      throwCode("cert_untrusted");
+    }
+  }
+
+  /**
    * Create a new dove-jwt.
    * @param  {Object} payload   Body of the JWT you'd like to produce. Passed directly to jsonwebtoken.
    * @param  {String} secretKey RSA secret key.
@@ -91,6 +104,7 @@ export class DoveJwt {
     if (!domain || !secretKey || !cert || !domain) {
       throw new Error("Missing required parameters to dove.sign.");
     }
+    this.verifyCertTrusted(cert);
     options.algorithm = "RS256";
     options.issuer = `https://${domain}/`;
     if (!options.header) {
@@ -111,6 +125,7 @@ export class DoveJwt {
   verify(token) {
     const {header} = jwt.decode(token, {complete: true});
     const cert = derArrayToPem(header.x5c);
+    this.verifyCertTrusted(cert);
     const payload = jwt.verify(token, cert, {algorithms: "RS256"});
     return payload;
   }
