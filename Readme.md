@@ -1,7 +1,9 @@
 dove-jwt
 ========
 
-(That stands for **Do**main **Ve**rified **J**SON **W**eb **T**oken.)
+[![Build Status](https://travis-ci.org/streamkitchen/dove-jwt.svg?branch=master)](https://travis-ci.org/streamkitchen/dove-jwt)
+
+(That stands for **Do**main **Ve**rified **J**SON **W**eb **T**okens.)
 
 Tests
 -----
