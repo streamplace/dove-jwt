@@ -4,6 +4,7 @@ import debug from "debug";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 import {splitca, pemToDerArray, derArrayToPem} from "./utils";
+import {parse as urlParse} from "url";
 
 const log = debug("sk:dove-jwt");
 
@@ -90,6 +91,42 @@ export class DoveJwt {
   }
 
   /**
+   * If we weren't provided an issuer, derive it from the cert
+   * @param  {String} cert PEM-formatted certificate
+   * @return {String} https://example.com/
+   */
+  getIssuer(cert) {
+    const forgeCert = forge.pki.certificateFromPem(cert);
+    const commonName = forgeCert.subject.getField("commonName");
+    return `https://${commonName}/`;
+  }
+
+  verifyCertIssuerMatch(cert, issuer) {
+    if (!issuer) {
+      throwCode("issuer_missing");
+    }
+    const {host} = urlParse(issuer);
+    if (issuer !== `https://${host}/`) {
+      log(`Malformed issuer: "${issuer}" should be of form "https://${host}/"`)
+      throwCode("issuer_invalid");
+    }
+    let commonName;
+    try {
+      const forgeCert = forge.pki.certificateFromPem(cert);
+      const subject = forgeCert.subject.getField("CN");
+      commonName = subject.value;
+    }
+    catch(e) {
+      log("Error from forge", e);
+      throwCode("x5c_invalid");
+    }
+    if (host !== commonName) {
+      log(`Incorrect issuer: ${host} !== ${commonName}`);
+      throwCode("issuer_wrong");
+    }
+  }
+
+  /**
    * Create a new dove-jwt.
    * @param  {Object} payload   Body of the JWT you'd like to produce. Passed directly to jsonwebtoken.
    * @param  {String} secretKey RSA secret key.
@@ -104,6 +141,12 @@ export class DoveJwt {
     }
     this.verifyCertTrusted(cert);
     options.algorithm = "RS256";
+    if (!options.issuer) {
+      options.issuer = this.getIssuer(cert);
+    }
+    else {
+      this.verifyCertIssuerMatch(cert, options.issuer);
+    }
     if (!options.header) {
       options.header = {};
     }
@@ -120,11 +163,26 @@ export class DoveJwt {
    *                        property of the error.
    */
   verify(token) {
-    const {header} = jwt.decode(token, {complete: true});
-    const cert = derArrayToPem(header.x5c);
+    const {header, payload: untrustedPayload} = jwt.decode(token, {complete: true});
+    if (!header.x5c) {
+      throwCode("x5c_missing");
+    }
+    let cert;
+    try {
+      cert = derArrayToPem(header.x5c);
+    }
+    catch(e) {
+      log("Error from forge", e);
+      throwCode("x5c_invalid");
+    }
     this.verifyCertTrusted(cert);
-    const payload = jwt.verify(token, cert, {algorithms: "RS256"});
-    return payload;
+    this.verifyCertIssuerMatch(cert, untrustedPayload.iss);
+    // jsonwebtoken checks for this, but it's v important, so let's check too
+    if (header.alg !== "RS256") {
+      throwCode("algorithm_invalid");
+    }
+    const trustedPayload = jwt.verify(token, cert, {algorithms: "RS256"});
+    return trustedPayload;
   }
 }
 

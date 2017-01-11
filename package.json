@@ -4,7 +4,7 @@
   "description": "Domain Validated JSON Web Tokens",
   "main": "dist/dove-jwt.js",
   "scripts": {
-    "test": "DEBUG='sk:*' jasmine __test__/*.spec.js"
+    "test": "jasmine __test__/*.spec.js"
   },
   "repository": {
     "type": "git",

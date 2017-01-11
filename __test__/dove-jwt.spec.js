@@ -4,24 +4,6 @@ import {certs, keys} from "./certs";
 import {DoveJwt} from "../src/dove-jwt";
 import jwt from "jsonwebtoken";
 
-const failure = function() {
-  return Promise.reject("fail!");
-}
-
-const reversePromise = function(prom) {
-  return new Promise((resolve, reject) => {
-    prom.then(reject).catch(resolve);
-  });
-};
-
-
-
-describe("this test framework", function() {
-  it("should have working promise helpers", function() {
-    return reversePromise(failure());
-  });
-});
-
 describe("dove-jwt", function() {
   let dove;
   let otherDove; // so we have two with different CA stores
@@ -48,25 +30,24 @@ describe("dove-jwt", function() {
       expect(decoded.header.alg).toBe("RS256");
     });
 
-    xit("should determine the domain from the common name if not provided", function() {
+    it("should determine the domain from the common name if not provided", function() {
       const token = dove.sign({foo: "bar"}, keys.example_com, certs.example_com);
       const decoded = jwt.decode(token, {complete: true});
-      console.log(decoded.header);
     });
 
     it("should fail to sign if the cert is untrusted", function() {
       expect(function() {
-        otherDove.sign({foo: "bar"}, keys.example_com, certs.example_com, {domain: "example.com"});
+        otherDove.sign({foo: "bar"}, keys.example_com, certs.example_com);
       }).toThrowError("cert_untrusted");
     });
 
-    xit("should fail if cert and domain parameter don't match", function() {
+    it("should fail if cert and issuer parameter don't match", function() {
       expect(function() {
-        dove.sign({foo: "bar"}, keys.example_com, certs.example_com, {domain: "wrongdomain.example.com"});
-      }).toThrowError("domain_mismatch");
+        dove.sign({foo: "bar"}, keys.example_com, certs.example_com, {issuer: "https://wrongdomain.example.com/"});
+      }).toThrowError("issuer_wrong");
       expect(function() {
-        dove.sign({foo: "bar"}, keys.wrongdomain_example_pizza, certs.wrongdomain_example_pizza, {domain: "example.com"});
-      }).toThrowError("domain_mismatch");
+        dove.sign({foo: "bar"}, keys.wrongdomain_example_pizza, certs.wrongdomain_example_pizza, {issuer: "https://example.com/"});
+      }).toThrowError("issuer_wrong");
     });
   });
 
@@ -77,7 +58,7 @@ describe("dove-jwt", function() {
     beforeEach(function() {
       options = {
         algorithm: "RS256",
-        issuer: `https://example.com/`,
+        issuer: "https://example.com/",
         header: {
           x5c: pemToDerArray(certs.example_com),
         },
@@ -91,7 +72,7 @@ describe("dove-jwt", function() {
       expect(parsed.foo).toBe("bar");
     });
 
-    xit("should fail if algorithim isn't RS256", function() {
+    it("should fail if algorithim isn't RS256", function() {
       options.algorithm = "HS256";
       const token = jwt.sign({foo: "bar"}, keys.example_com, options);
       expect(function() {
@@ -99,7 +80,7 @@ describe("dove-jwt", function() {
       }).toThrowError("algorithm_invalid");
     });
 
-    xit("should fail if the x5c header is missing", function() {
+    it("should fail if the x5c header is missing", function() {
       delete options.header.x5c;
       const token = jwt.sign({foo: "bar"}, keys.example_com, options);
       expect(function() {
@@ -107,15 +88,23 @@ describe("dove-jwt", function() {
       }).toThrowError("x5c_missing");
     });
 
-    xit("should fail if the x5c header is malformed", function() {
+    it("should fail if the x5c header is malformed", function() {
       options.header.x5c = ["not", "good", "hex", "data"];
       const token = jwt.sign({foo: "bar"}, keys.example_com, options);
       expect(function() {
         dove.verify(token);
-      }).toThrowError("x5c_malformed");
+      }).toThrowError("x5c_invalid");
     });
 
-    xit("should fail if the issuer isn't formatted properly", function() {
+    it("should fail if there is no issuer", function() {
+      delete options.issuer;
+      const token = jwt.sign({foo: "bar"}, keys.example_com, options);
+      expect(function() {
+        dove.verify(token);
+      }).toThrowError("issuer_missing");
+    });
+
+    it("should fail if the issuer isn't formatted properly", function() {
       ([
         "http://example.com",
         "https://wrongdomain.example.com/this/is/more/path",
@@ -128,7 +117,7 @@ describe("dove-jwt", function() {
       });
     });
 
-    xit("should fail if the cert doesn't match the issuer", function() {
+    it("should fail if the cert doesn't match the issuer", function() {
       ([
         "https://wrongdomain.example.com/",
         "https://otherdomain.example.com/",
