@@ -9,7 +9,7 @@ Limitations
 -----------
 
 * Currently only can use system certificates on Linux, not Mac or Windows. ([#2](https://github.com/streamkitchen/dove-jwt/issues/2))
-* Only works with the common name (CN) record on the cert, not any Subject Alternative Names ([#3](https://github.com/streamkitchen/dove-jwt/issues/2))
+* Only works with the common name (CN) record on the cert, not any Subject Alternative Names ([#3](https://github.com/streamkitchen/dove-jwt/issues/3))
 
 Tests
 -----
