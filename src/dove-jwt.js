@@ -99,14 +99,11 @@ export class DoveJwt {
    * @return {String} The dove-jwt.
    */
   sign(payload, secretKey, cert, options = {}) {
-    const {domain} = options;
-    delete options.domain;
-    if (!domain || !secretKey || !cert || !domain) {
+    if (!payload || !secretKey || !cert) {
       throw new Error("Missing required parameters to dove.sign.");
     }
     this.verifyCertTrusted(cert);
     options.algorithm = "RS256";
-    options.issuer = `https://${domain}/`;
     if (!options.header) {
       options.header = {};
     }

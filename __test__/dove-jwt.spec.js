@@ -40,7 +40,7 @@ describe("dove-jwt", function() {
 
   describe("sign", function() {
     it("should handle basic signing", function() {
-      const token = dove.sign({foo: "bar"}, keys.example_com, certs.example_com, {domain: "example.com"});
+      const token = dove.sign({foo: "bar"}, keys.example_com, certs.example_com, {issuer: "https://example.com/"});
       const decoded = jwt.decode(token, {complete: true});
       expect(decoded).toBeTruthy();
       expect(decoded.payload.foo).toBe("bar");
