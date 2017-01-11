@@ -4,7 +4,10 @@
   "description": "Domain Validated JSON Web Tokens",
   "main": "dist/dove-jwt.js",
   "scripts": {
-    "test": "jasmine __test__/*.spec.js"
+    "test": "npm run lint && jasmine __test__/*.spec.js",
+    "lint": "eslint .",
+    "build": "npm run test && babel -d dist src",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -28,6 +31,7 @@
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
+    "babel-eslint": "^7.1.1",
     "babel-jest": "^18.0.0",
     "babel-preset-streamkitchen": "0.0.2",
     "eslint": "^3.13.0",

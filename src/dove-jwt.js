@@ -9,7 +9,7 @@ import {parse as urlParse} from "url";
 const log = debug("sk:dove-jwt");
 
 const throwCode = function(code) {
-  var err = new Error(code);
+  const err = new Error(code);
   throw err;
 };
 
@@ -107,7 +107,7 @@ export class DoveJwt {
     }
     const {host} = urlParse(issuer);
     if (issuer !== `https://${host}/`) {
-      log(`Malformed issuer: "${issuer}" should be of form "https://${host}/"`)
+      log(`Malformed issuer: "${issuer}" should be of form "https://${host}/"`);
       throwCode("issuer_invalid");
     }
     let commonName;
