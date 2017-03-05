@@ -1,6 +1,6 @@
 {
   "name": "dove-jwt",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Domain Validated JSON Web Tokens",
   "main": "dist/dove-jwt.js",
   "scripts": {
