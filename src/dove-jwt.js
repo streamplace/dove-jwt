@@ -97,7 +97,8 @@ export class DoveJwt {
    */
   getIssuer(cert) {
     const forgeCert = forge.pki.certificateFromPem(cert);
-    const commonName = forgeCert.subject.getField("commonName");
+    const subject = forgeCert.subject.getField("CN");
+    const commonName = subject.value;
     return `https://${commonName}/`;
   }
 

@@ -32,7 +32,9 @@ describe("dove-jwt", function() {
 
     it("should determine the domain from the common name if not provided", function() {
       const token = dove.sign({foo: "bar"}, keys.example_com, certs.example_com);
+      dove.verify(token);
       const decoded = jwt.decode(token, {complete: true});
+      expect(decoded.payload.iss).toBe("https://example.com/");
     });
 
     it("should fail to sign if the cert is untrusted", function() {
