@@ -4,9 +4,10 @@
   "description": "Domain Validated JSON Web Tokens",
   "main": "dist/dove-jwt.js",
   "scripts": {
-    "test": "npm run lint && npm run jasmine",
-    "jasmine": "jasmine __test__/*.spec.js",
+    "test": "npm run lint && npm run docker-tests",
     "lint": "eslint .",
+    "docker-tests": "docker run -it --rm -v $(pwd):/app -w /app node:8 npm run jest",
+    "jest": "jest",
     "build": "npm run test && babel -d dist src",
     "prepublish": "npm run build"
   },
@@ -14,9 +15,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/streamkitchen/dove-jwt.git"
   },
-  "keywords": [
-    "JWT"
-  ],
+  "keywords": ["JWT"],
   "author": "Streamplace",
   "license": "MIT",
   "bugs": {
@@ -33,7 +32,7 @@
     "babel-core": "^6.21.0",
     "babel-eslint": "^7.1.1",
     "babel-jest": "^18.0.0",
-    "babel-preset-streamkitchen": "0.0.2",
+    "babel-preset-streamplace": "*",
     "eslint": "^3.13.0",
     "jasmine-es6": "^0.4.0",
     "jest": "^18.1.0"
