@@ -9,7 +9,8 @@
     "docker-tests": "docker run -it --rm -v $(pwd):/app -w /app node:8 npm run jest",
     "jest": "jest",
     "build": "npm run test && babel -d dist src",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "precommit": "lint-staged"
   },
   "repository": {
     "type": "git",
@@ -34,7 +35,14 @@
     "babel-jest": "^18.0.0",
     "babel-preset-streamplace": "*",
     "eslint": "^3.13.0",
+    "husky": "^0.14.3",
     "jasmine-es6": "^0.4.0",
-    "jest": "^18.1.0"
+    "jest": "^18.1.0",
+    "lint-staged": "^4.0.3",
+    "prettier": "^1.5.3"
+  },
+  "lint-staged": {
+    "*.js": ["prettier --write", "git add"],
+    "*.css": ["prettier --write", "git add"]
   }
 }

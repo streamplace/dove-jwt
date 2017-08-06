@@ -1,7 +1,6 @@
-
-import {pemToDerArray, derArrayToPem} from "../src/utils";
-import {certs, keys} from "./certs";
-import {DoveJwt} from "../src/dove-jwt";
+import { pemToDerArray, derArrayToPem } from "../src/utils";
+import { certs, keys } from "./certs";
+import { DoveJwt } from "../src/dove-jwt";
 import jwt from "jsonwebtoken";
 
 describe("dove-jwt", function() {
@@ -22,8 +21,13 @@ describe("dove-jwt", function() {
 
   describe("sign", function() {
     it("should handle basic signing", function() {
-      const token = dove.sign({foo: "bar"}, keys.example_com, certs.example_com, {issuer: "https://example.com/"});
-      const decoded = jwt.decode(token, {complete: true});
+      const token = dove.sign(
+        { foo: "bar" },
+        keys.example_com,
+        certs.example_com,
+        { issuer: "https://example.com/" }
+      );
+      const decoded = jwt.decode(token, { complete: true });
       expect(decoded).toBeTruthy();
       expect(decoded.payload.foo).toBe("bar");
       expect(decoded.header.x5c).toEqual(pemToDerArray(certs.example_com));
@@ -31,24 +35,35 @@ describe("dove-jwt", function() {
     });
 
     it("should determine the domain from the common name if not provided", function() {
-      const token = dove.sign({foo: "bar"}, keys.example_com, certs.example_com);
+      const token = dove.sign(
+        { foo: "bar" },
+        keys.example_com,
+        certs.example_com
+      );
       dove.verify(token);
-      const decoded = jwt.decode(token, {complete: true});
+      const decoded = jwt.decode(token, { complete: true });
       expect(decoded.payload.iss).toBe("https://example.com/");
     });
 
     it("should fail to sign if the cert is untrusted", function() {
       expect(function() {
-        otherDove.sign({foo: "bar"}, keys.example_com, certs.example_com);
+        otherDove.sign({ foo: "bar" }, keys.example_com, certs.example_com);
       }).toThrowError("cert_untrusted");
     });
 
     it("should fail if cert and issuer parameter don't match", function() {
       expect(function() {
-        dove.sign({foo: "bar"}, keys.example_com, certs.example_com, {issuer: "https://wrongdomain.example.com/"});
+        dove.sign({ foo: "bar" }, keys.example_com, certs.example_com, {
+          issuer: "https://wrongdomain.example.com/"
+        });
       }).toThrowError("issuer_wrong");
       expect(function() {
-        dove.sign({foo: "bar"}, keys.wrongdomain_example_pizza, certs.wrongdomain_example_pizza, {issuer: "https://example.com/"});
+        dove.sign(
+          { foo: "bar" },
+          keys.wrongdomain_example_pizza,
+          certs.wrongdomain_example_pizza,
+          { issuer: "https://example.com/" }
+        );
       }).toThrowError("issuer_wrong");
     });
   });
@@ -62,10 +77,10 @@ describe("dove-jwt", function() {
         algorithm: "RS256",
         issuer: "https://example.com/",
         header: {
-          x5c: pemToDerArray(certs.example_com),
-        },
+          x5c: pemToDerArray(certs.example_com)
+        }
       };
-      exampleToken = jwt.sign({foo: "bar"}, keys.example_com, options);
+      exampleToken = jwt.sign({ foo: "bar" }, keys.example_com, options);
     });
 
     it("should handle basic verification", function() {
@@ -76,7 +91,7 @@ describe("dove-jwt", function() {
 
     it("should fail if algorithim isn't RS256", function() {
       options.algorithm = "HS256";
-      const token = jwt.sign({foo: "bar"}, keys.example_com, options);
+      const token = jwt.sign({ foo: "bar" }, keys.example_com, options);
       expect(function() {
         dove.verify(token);
       }).toThrowError("algorithm_invalid");
@@ -84,7 +99,7 @@ describe("dove-jwt", function() {
 
     it("should fail if the x5c header is missing", function() {
       delete options.header.x5c;
-      const token = jwt.sign({foo: "bar"}, keys.example_com, options);
+      const token = jwt.sign({ foo: "bar" }, keys.example_com, options);
       expect(function() {
         dove.verify(token);
       }).toThrowError("x5c_missing");
@@ -92,7 +107,7 @@ describe("dove-jwt", function() {
 
     it("should fail if the x5c header is malformed", function() {
       options.header.x5c = ["not", "good", "hex", "data"];
-      const token = jwt.sign({foo: "bar"}, keys.example_com, options);
+      const token = jwt.sign({ foo: "bar" }, keys.example_com, options);
       expect(function() {
         dove.verify(token);
       }).toThrowError("x5c_invalid");
@@ -100,19 +115,19 @@ describe("dove-jwt", function() {
 
     it("should fail if there is no issuer", function() {
       delete options.issuer;
-      const token = jwt.sign({foo: "bar"}, keys.example_com, options);
+      const token = jwt.sign({ foo: "bar" }, keys.example_com, options);
       expect(function() {
         dove.verify(token);
       }).toThrowError("issuer_missing");
     });
 
     it("should fail if the issuer isn't formatted properly", function() {
-      ([
+      [
         "http://example.com",
-        "https://wrongdomain.example.com/this/is/more/path",
-      ]).forEach(function(issuer) {
+        "https://wrongdomain.example.com/this/is/more/path"
+      ].forEach(function(issuer) {
         options.issuer = issuer;
-        const token = jwt.sign({foo: "bar"}, keys.example_com, options);
+        const token = jwt.sign({ foo: "bar" }, keys.example_com, options);
         expect(function() {
           dove.verify(token);
         }).toThrowError("issuer_invalid");
@@ -120,13 +135,13 @@ describe("dove-jwt", function() {
     });
 
     it("should fail if the cert doesn't match the issuer", function() {
-      ([
+      [
         "https://wrongdomain.example.com/",
         "https://otherdomain.example.com/",
         "https://google.com/"
-      ]).forEach(function(issuer) {
+      ].forEach(function(issuer) {
         options.issuer = issuer;
-        const token = jwt.sign({foo: "bar"}, keys.example_com, options);
+        const token = jwt.sign({ foo: "bar" }, keys.example_com, options);
         expect(function() {
           dove.verify(token);
         }).toThrowError("issuer_wrong");

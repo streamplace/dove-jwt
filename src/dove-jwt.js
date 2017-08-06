@@ -1,10 +1,9 @@
-
 import forge from "node-forge";
 import debug from "debug";
 import fs from "fs";
 import jwt from "jsonwebtoken";
-import {splitca, pemToDerArray, derArrayToPem} from "./utils";
-import {parse as urlParse} from "url";
+import { splitca, pemToDerArray, derArrayToPem } from "./utils";
+import { parse as urlParse } from "url";
 
 const log = debug("sk:dove-jwt");
 
@@ -43,14 +42,12 @@ export class DoveJwt {
       try {
         this.caStore.addCertificate(ca);
         added += 1;
-      }
-      catch (e) {
+      } catch (e) {
         // We can safely ignore this very specific error... I guess. Eew for matching this error
         // this way.
         if (e.message !== "Cannot read public key. OID is not RSA.") {
           throw e;
-        }
-        else {
+        } else {
           failed += 1;
         }
       }
@@ -59,10 +56,14 @@ export class DoveJwt {
       throw new Error("addCertAuthority called with no keys.");
     }
     if (added === 0) {
-      throw new Error("None of the keys passed to addCertAuthority were RSA keys, none added.");
+      throw new Error(
+        "None of the keys passed to addCertAuthority were RSA keys, none added."
+      );
     }
     if (failed > 0) {
-      log(`${added} RSA CAs added, ${failed} non-RSA CAs ignored. (This is normal because we only support RSA certs, and is not ordinarily cause for concern)`);
+      log(
+        `${added} RSA CAs added, ${failed} non-RSA CAs ignored. (This is normal because we only support RSA certs, and is not ordinarily cause for concern)`
+      );
     }
   }
 
@@ -82,9 +83,11 @@ export class DoveJwt {
    */
   verifyCertTrusted(cert) {
     try {
-      const result = forge.pki.verifyCertificateChain(this.caStore, splitca(cert).map(forge.pki.certificateFromPem));
-    }
-    catch (e) {
+      const result = forge.pki.verifyCertificateChain(
+        this.caStore,
+        splitca(cert).map(forge.pki.certificateFromPem)
+      );
+    } catch (e) {
       log("Error from forge.pki.verifyCertificateChain", e);
       throwCode("cert_untrusted");
     }
@@ -106,7 +109,7 @@ export class DoveJwt {
     if (!issuer) {
       throwCode("issuer_missing");
     }
-    const {host} = urlParse(issuer);
+    const { host } = urlParse(issuer);
     if (issuer !== `https://${host}/`) {
       log(`Malformed issuer: "${issuer}" should be of form "https://${host}/"`);
       throwCode("issuer_invalid");
@@ -116,8 +119,7 @@ export class DoveJwt {
       const forgeCert = forge.pki.certificateFromPem(cert);
       const subject = forgeCert.subject.getField("CN");
       commonName = subject.value;
-    }
-    catch(e) {
+    } catch (e) {
       log("Error from forge", e);
       throwCode("x5c_invalid");
     }
@@ -144,8 +146,7 @@ export class DoveJwt {
     options.algorithm = "RS256";
     if (!options.issuer) {
       options.issuer = this.getIssuer(cert);
-    }
-    else {
+    } else {
       this.verifyCertIssuerMatch(cert, options.issuer);
     }
     if (!options.header) {
@@ -164,15 +165,16 @@ export class DoveJwt {
    *                        property of the error.
    */
   verify(token) {
-    const {header, payload: untrustedPayload} = jwt.decode(token, {complete: true});
+    const { header, payload: untrustedPayload } = jwt.decode(token, {
+      complete: true
+    });
     if (!header.x5c) {
       throwCode("x5c_missing");
     }
     let cert;
     try {
       cert = derArrayToPem(header.x5c);
-    }
-    catch(e) {
+    } catch (e) {
       log("Error from forge", e);
       throwCode("x5c_invalid");
     }
@@ -182,7 +184,7 @@ export class DoveJwt {
     if (header.alg !== "RS256") {
       throwCode("algorithm_invalid");
     }
-    const trustedPayload = jwt.verify(token, cert, {algorithms: "RS256"});
+    const trustedPayload = jwt.verify(token, cert, { algorithms: "RS256" });
     return trustedPayload;
   }
 }
