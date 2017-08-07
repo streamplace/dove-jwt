@@ -5,18 +5,22 @@
   "main": "dist/dove-jwt.js",
   "scripts": {
     "test": "npm run lint && npm run docker-tests",
-    "lint": "eslint .",
+    "lint": "eslint src",
     "docker-tests": "docker run -it --rm -v $(pwd):/app -w /app node:8 npm run jest",
     "jest": "jest",
     "build": "npm run test && babel -d dist src",
-    "prepublish": "npm run build",
-    "precommit": "lint-staged"
+    "webpack": "webpack",
+    "prepublish": "scrape-debian-ca && npm run build",
+    "precommit": "lint-staged",
+    "scrape-debian-ca": "docker run --rm node:8 cat /etc/ssl/certs/ca-certificates.crt > src/ca-certificates-browser.crt"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/streamkitchen/dove-jwt.git"
   },
-  "keywords": ["JWT"],
+  "keywords": [
+    "JWT"
+  ],
   "author": "Streamplace",
   "license": "MIT",
   "bugs": {
@@ -38,11 +42,19 @@
     "husky": "^0.14.3",
     "jasmine-es6": "^0.4.0",
     "jest": "^18.1.0",
+    "joi-browser": "^10.6.1",
     "lint-staged": "^4.0.3",
-    "prettier": "^1.5.3"
+    "prettier": "^1.5.3",
+    "raw-loader": "^0.5.1"
   },
   "lint-staged": {
-    "*.js": ["prettier --write", "git add"],
-    "*.css": ["prettier --write", "git add"]
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.css": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }

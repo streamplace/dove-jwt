@@ -1,9 +1,9 @@
 import forge from "node-forge";
 import debug from "debug";
-import fs from "fs";
 import jwt from "jsonwebtoken";
 import { splitca, pemToDerArray, derArrayToPem } from "./utils";
 import { parse as urlParse } from "url";
+import getSystemCAs from "./ca.js";
 
 const log = debug("sk:dove-jwt");
 
@@ -68,13 +68,12 @@ export class DoveJwt {
   }
 
   /**
-   * Use the system's built-in root CAs. This is kind of what we had in mind writing dove-jwt, but
-   * it's disabled by default b/c self-signed is good too.
+   * Use the system's built-in root CAs as best as we can. See ca.js for details but basically only
+   * works on Debian-y systems right now. See ca.js and ca-browser.js.
    */
   useSystemCertAuthorities() {
-    // if your life is worse because this is is sync, let me know and I'll change it! -Eli
-    const myCAs = fs.readFileSync(DoveJwt.SYSTEM_CA_PATH, "utf8");
-    return this.addCertAuthority(myCAs);
+    const systemCAs = getSystemCAs();
+    this.addCertAuthority(systemCAs);
   }
 
   /**
@@ -189,7 +188,6 @@ export class DoveJwt {
   }
 }
 
-// Mostly so it can be overridden in test mocks
-DoveJwt.SYSTEM_CA_PATH = "/etc/ssl/certs/ca-certificates.crt";
-
-export default new DoveJwt();
+const defaultDove = new DoveJwt();
+defaultDove.useSystemCertAuthorities();
+export default defaultDove;

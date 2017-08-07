@@ -3,3 +3,4 @@ node_modules
 key.pem
 cert.pem
 jest
+ca-certificates-browser.crt
