@@ -14,13 +14,14 @@
     "precommit": "lint-staged",
     "scrape-debian-ca": "docker run --rm node:8 cat /etc/ssl/certs/ca-certificates.crt > src/ca-certificates-browser.crt"
   },
+  "bin": {
+    "dove-jwt": "dist/cli.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/streamkitchen/dove-jwt.git"
   },
-  "keywords": [
-    "JWT"
-  ],
+  "keywords": ["JWT"],
   "author": "Streamplace",
   "license": "MIT",
   "bugs": {
@@ -29,8 +30,10 @@
   "homepage": "https://github.com/streamkitchen/dove-jwt#readme",
   "dependencies": {
     "debug": "^2.6.0",
+    "inquirer": "^3.2.1",
     "jsonwebtoken": "^7.2.1",
-    "node-forge": "^0.6.46"
+    "node-forge": "^0.6.49",
+    "winston": "^2.3.1"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -45,16 +48,11 @@
     "joi-browser": "^10.6.1",
     "lint-staged": "^4.0.3",
     "prettier": "^1.5.3",
-    "raw-loader": "^0.5.1"
+    "raw-loader": "^0.5.1",
+    "yargs": "^8.0.2"
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ],
-    "*.css": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.js": ["prettier --write", "git add"],
+    "*.css": ["prettier --write", "git add"]
   }
 }

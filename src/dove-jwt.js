@@ -189,5 +189,4 @@ export class DoveJwt {
 }
 
 const defaultDove = new DoveJwt();
-defaultDove.useSystemCertAuthorities();
 export default defaultDove;
