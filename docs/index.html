@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<script>
+  localStorage.debug = "*";
+
+</script>
+
+<body>
+  <h1>dove-jwt</h1>
+  <p>Paste a dove-jwt here to verify it</p>
+  <textarea id="verify"></textarea>
+  <button id="btn-verify">Verify</button>
+  <script src="dove-jwt.webpack.js"></script>
+  <script>
+    DoveJWT.default.useSystemCertAuthorities();
+    document.querySelector("#btn-verify").addEventListener("click", function (e) {
+      const text = document.querySelector("#verify").value;
+      const result = DoveJWT.default.verify(text);
+      console.log("looks okay");
+      console.log(result);
+    })
+  </script>
+</body>
+
+</html>
