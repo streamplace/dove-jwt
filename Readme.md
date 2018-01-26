@@ -10,7 +10,7 @@
 
 With dove-jwt, we take this to its logical conclusion and use your TLS key as the private key, and your CA-verified TLS certificate chain as the public key. The following things are true of a valid `dove-jwt`:
 
-* The JWT is signed using the RS265 algorithm.
+* The JWT is signed using the RS256 algorithm.
 * [The x5c header](https://tools.ietf.org/html/rfc7515#section-4.1.6) contains a CA-verified certificate chain.
 * The first certificate in this chain validates as the correct public key for the JWT.
 * [The iss (issuer) claim](https://tools.ietf.org/html/rfc7519#section-4.1.1) matches the Common Name [CN] on the signing certificate.
